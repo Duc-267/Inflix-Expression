@@ -142,6 +142,8 @@ int main()
 
     ifstream filein;
     filein.open("input.txt");
+    ofstream fileout;
+    fileout.open("output.txt");
     string s;
     while (!filein.eof())
     {
@@ -161,9 +163,10 @@ int main()
                     toanTu.pop();
                 }
             }
-            cout << so.top() << endl;
+            fileout << so.top() << endl;
         }
-
+        filein.close();
+        fileout.close();
     }
     system("pause");
     return 0;
