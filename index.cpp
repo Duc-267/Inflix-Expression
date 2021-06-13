@@ -157,7 +157,7 @@ int main()
                     so.pop();
                     float soThuHai = so.top();
                     so.pop();
-                    so.push(tinhToan(soThuNhat, soThuHai, toanTu.top()));
+                    so.push(tinhToan(soThuHai, soThuNhat, toanTu.top()));
                     toanTu.pop();
                 }
             }
