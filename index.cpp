@@ -9,7 +9,7 @@ using namespace std;
 
 struct Node {
     string s = "\n";
-    Node* next=NULL;
+    Node* next = NULL;
 };
 
 class Stack {
@@ -84,6 +84,7 @@ void thucHien(string kytu, stack<float>& so, Stack& toantu)
             so.push(tinhToan(soThuNhat, soThuHai, toantu.top()));
             toantu.pop();
         }
+        toantu.pop();
     }
     else {
         while (!toantu.empty() && doUuTien(toantu.top()) >= doUuTien(kytu)) {
@@ -151,17 +152,28 @@ int main()
         while (getline(filein, s)) {
             stringstream ss(s);
             while (getline(ss, newS, ' ')) {
-                thucHien(newS, so, toanTu);
+                if (newS[0] == '(') {
+                    string dauMoNgoac = newS.substr(0, 1);
+                    newS.erase(0, 1);
+                    thucHien(dauMoNgoac, so, toanTu);
+                    thucHien(newS, so, toanTu);
+                }
+                else if (newS[newS.size() - 1] == ')') {
+                    string dauDongNgoac = newS.substr(newS.size() - 1, 1);
+                    newS.erase(newS.size() - 1, 1);
+                    thucHien(newS, so, toanTu);
+                    thucHien(dauDongNgoac, so, toanTu);
+                }
+                else
+                    thucHien(newS, so, toanTu);
             }
             while (!toanTu.empty()) {
-                while (!toanTu.empty()) {
-                    float soThuNhat = so.top();
-                    so.pop();
-                    float soThuHai = so.top();
-                    so.pop();
-                    so.push(tinhToan(soThuHai, soThuNhat, toanTu.top()));
-                    toanTu.pop();
-                }
+                float soThuNhat = so.top();
+                so.pop();
+                float soThuHai = so.top();
+                so.pop();
+                so.push(tinhToan(soThuHai, soThuNhat, toanTu.top()));
+                toanTu.pop();
             }
             fileout << so.top() << endl;
         }
