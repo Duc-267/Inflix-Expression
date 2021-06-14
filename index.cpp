@@ -9,7 +9,7 @@ using namespace std;
 
 struct Node {
     string s = "\n";
-    Node* next=NULL;
+    Node* next = NULL;
 };
 
 class Stack {
@@ -66,10 +66,15 @@ void thucHien(string kytu, stack<float>& so, Stack& toantu);
 bool kiemTraSo(char a);
 int doUuTien(string toanTu);
 float tinhToan(float a, float b, string toanTu);
-
+bool isParam(string line)
+{
+    char* p;
+    strtol(line.c_str(), &p, 10);
+    return *p == 0;
+}
 void thucHien(string kytu, stack<float>& so, Stack& toantu)
 {
-    if (kiemTraSo(kytu[0])) {
+    if (isParam(kytu)) {
         so.push(stof(kytu));
     }
     else if (kytu == "(") {
@@ -81,9 +86,10 @@ void thucHien(string kytu, stack<float>& so, Stack& toantu)
             so.pop();
             float soThuHai = so.top();
             so.pop();
-            so.push(tinhToan(soThuNhat, soThuHai, toantu.top()));
+            so.push(tinhToan(soThuHai, soThuNhat, toantu.top()));
             toantu.pop();
         }
+        toantu.pop();
     }
     else {
         while (!toantu.empty() && doUuTien(toantu.top()) >= doUuTien(kytu)) {
@@ -95,8 +101,20 @@ void thucHien(string kytu, stack<float>& so, Stack& toantu)
             toantu.pop();
         }
         toantu.push(kytu);
-
     }
+}
+
+bool kiemTraHaiSoLienTuc(int& laHaiSoLienTuc, string kytu) {
+    if (isParam(kytu)) {
+        laHaiSoLienTuc++;
+    }
+    else if ((kytu.compare("(") != 0 && kytu.compare(")")) != 0) {
+        laHaiSoLienTuc = 0;
+    }
+
+    if (laHaiSoLienTuc == 2)
+        return true;
+    return false;
 }
 
 int doUuTien(string toanTu)
@@ -137,8 +155,7 @@ bool kiemTraSo(char s)
 
 int main()
 {
-    stack <float> so;
-    Stack toanTu;
+   
 
     ifstream filein;
     filein.open("input.txt");
@@ -150,10 +167,42 @@ int main()
         string newS;
         while (getline(filein, s)) {
             stringstream ss(s);
+            int laHaiSoLienTuc = 0;
+            stack <float> so;
+            Stack toanTu;
             while (getline(ss, newS, ' ')) {
-                thucHien(newS, so, toanTu);
+                if (newS[0] == '(') {
+                    string dauMoNgoac = newS.substr(0, 1);
+                    kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauMoNgoac);
+                    newS.erase(0, 1);
+                    if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
+                        fileout << "E" << endl;
+                        break;
+                    }
+                    thucHien(dauMoNgoac, so, toanTu);
+                    thucHien(newS, so, toanTu);
+                }
+                else if (newS[newS.size() - 1] == ')') {
+                    string dauDongNgoac = newS.substr(newS.size() - 1, 1);
+                    kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauDongNgoac);
+                    newS.erase(newS.size() - 1, 1);
+                    if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
+                        fileout << "E" << endl;
+                        break;
+                    }
+                    thucHien(newS, so, toanTu);
+                    thucHien(dauDongNgoac, so, toanTu);
+                }
+                else {
+                    if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
+                        fileout << "E" << endl;
+                        break;
+                    }
+                    thucHien(newS, so, toanTu);
+                }
+
             }
-            while (!toanTu.empty()) {
+            if (laHaiSoLienTuc != 2) {
                 while (!toanTu.empty()) {
                     float soThuNhat = so.top();
                     so.pop();
@@ -162,8 +211,8 @@ int main()
                     so.push(tinhToan(soThuHai, soThuNhat, toanTu.top()));
                     toanTu.pop();
                 }
+                fileout << so.top() << endl;
             }
-            fileout << so.top() << endl;
         }
         filein.close();
         fileout.close();
