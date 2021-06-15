@@ -1,78 +1,25 @@
 #include <iostream>
-#include <vector>
-#include <stack>
 #include <string>
 #include <fstream>
 #include <sstream>
-
+#include <iomanip>
+#include "stack.h"
 using namespace std;
 
-struct Node {
-    string s = "\n";
-    Node* next = NULL;
-};
 
-class Stack {
-private:
-    Node* head;
-public:
-    Stack() {
-        head = NULL;
-    }
-    string top()
-    {
-        if (!head)
-            return "";
-        return head->s;
-    }
-    void pop() {
-        if (!head)
-            return;
-        if (!head->next) {
-            delete head;
-            head = NULL;
-            return;
-        }
-        Node* temp = head->next;
-        delete head;
-        head = temp;
-    }
-    void push(string s) {
-        Node* temp = new Node;
-        if (temp == 0) {
-            return;
-        }
-        if (head == NULL) {
-            temp->s = s;
-            temp->next = NULL;
-            head = temp;
-            return;
-        }
-        else {
-            temp->s = s;
-            temp->next = head;
-            head = temp;
-            return;
-        }
-    }
-    bool empty() {
-        if (head == NULL)
-            return 1;
-        else return 0;
-    }
-};
-
-void thucHien(string kytu, stack<float>& so, Stack& toantu);
-bool kiemTraSo(char a);
+void thucHien(string kytu, StackFloat& so, Stack& toantu);
+bool isParam(string a);
 int doUuTien(string toanTu);
 float tinhToan(float a, float b, string toanTu);
 bool isParam(string line)
 {
-    char* p;
-    strtol(line.c_str(), &p, 10);
-    return *p == 0;
+    if (line.compare("(")!=0&&line.compare(")")!=0&&line.compare("+")!=0&&line.compare("-")!=0&&
+        line.compare("*")!=0&&line.compare("/")!=0){
+            return true;
+    }
+    return false;
 }
-void thucHien(string kytu, stack<float>& so, Stack& toantu)
+void thucHien(string kytu, StackFloat& so, Stack& toantu)
 {
     if (isParam(kytu)) {
         so.push(stof(kytu));
@@ -146,12 +93,6 @@ float tinhToan(float a, float b, string toanTu)
     return 0;
 }
 
-bool kiemTraSo(char s)
-{
-    if (isdigit(s))
-        return true;
-    return false;
-}
 
 int main()
 {
@@ -168,7 +109,7 @@ int main()
         while (getline(filein, s)) {
             stringstream ss(s);
             int laHaiSoLienTuc = 0;
-            stack <float> so;
+            StackFloat so;
             Stack toanTu;
             while (getline(ss, newS, ' ')) {
                 if (newS[0] == '(') {
@@ -211,7 +152,7 @@ int main()
                     so.push(tinhToan(soThuHai, soThuNhat, toanTu.top()));
                     toanTu.pop();
                 }
-                fileout << so.top() << endl;
+                fileout << fixed <<setprecision(2) <<so.top() << endl;
             }
         }
         filein.close();
