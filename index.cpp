@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <math.h>
 #include "stack.h"
 using namespace std;
 
@@ -14,7 +15,7 @@ float tinhToan(float a, float b, string toanTu);
 bool isParam(string line)
 {
     if (line.compare("(")!=0&&line.compare(")")!=0&&line.compare("+")!=0&&line.compare("-")!=0&&
-        line.compare("*")!=0&&line.compare("/")!=0){
+        line.compare("*")!=0&&line.compare("/")!=0&&line.compare("^")!=0){
             return true;
     }
     return false;
@@ -67,13 +68,11 @@ bool kiemTraHaiSoLienTuc(int& laHaiSoLienTuc, string kytu) {
 int doUuTien(string toanTu)
 {
     if (toanTu == "+" || toanTu == "-")
-    {
         return 1;
-    }
     if (toanTu == "*" || toanTu == "/")
-    {
         return 2;
-    }
+    if (toanTu == "^")
+        return 3;
     return 0;
 }
 
@@ -89,7 +88,10 @@ float tinhToan(float a, float b, string toanTu)
         return a * b;
     case '/':
         return a / b;
+    case '^':
+        return pow(a, b);
     }
+
     return 0;
 }
 
