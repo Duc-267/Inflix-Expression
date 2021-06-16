@@ -5,95 +5,8 @@
 #include <iomanip>
 #include <math.h>
 #include "stack.h"
+#include "function.h"
 using namespace std;
-
-
-void thucHien(string kytu, StackFloat& so, Stack& toantu);
-bool isParam(string a);
-int doUuTien(string toanTu);
-float tinhToan(float a, float b, string toanTu);
-bool isParam(string line)
-{
-    if (line.compare("(")!=0&&line.compare(")")!=0&&line.compare("+")!=0&&line.compare("-")!=0&&
-        line.compare("*")!=0&&line.compare("/")!=0&&line.compare("^")!=0){
-            return true;
-    }
-    return false;
-}
-void thucHien(string kytu, StackFloat& so, Stack& toantu)
-{
-    if (isParam(kytu)) {
-        so.push(stof(kytu));
-    }
-    else if (kytu == "(") {
-        toantu.push(kytu);
-    }
-    else if (kytu == ")") {
-        while (toantu.top() != "(" && !toantu.empty()) {
-            float soThuNhat = so.top();
-            so.pop();
-            float soThuHai = so.top();
-            so.pop();
-            so.push(tinhToan(soThuHai, soThuNhat, toantu.top()));
-            toantu.pop();
-        }
-        toantu.pop();
-    }
-    else {
-        while (!toantu.empty() && doUuTien(toantu.top()) >= doUuTien(kytu)) {
-            float soThuNhat = so.top();
-            so.pop();
-            float soThuHai = so.top();
-            so.pop();
-            so.push(tinhToan(soThuHai, soThuNhat, toantu.top()));
-            toantu.pop();
-        }
-        toantu.push(kytu);
-    }
-}
-
-bool kiemTraHaiSoLienTuc(int& laHaiSoLienTuc, string kytu) {
-    if (isParam(kytu)) {
-        laHaiSoLienTuc++;
-    }
-    else if ((kytu.compare("(") != 0 && kytu.compare(")")) != 0) {
-        laHaiSoLienTuc = 0;
-    }
-
-    if (laHaiSoLienTuc == 2)
-        return true;
-    return false;
-}
-
-int doUuTien(string toanTu)
-{
-    if (toanTu == "+" || toanTu == "-")
-        return 1;
-    if (toanTu == "*" || toanTu == "/")
-        return 2;
-    if (toanTu == "^")
-        return 3;
-    return 0;
-}
-
-float tinhToan(float a, float b, string toanTu)
-{
-    switch (toanTu[0])
-    {
-    case '+':
-        return a + b;
-    case '-':
-        return a - b;
-    case '*':
-        return a * b;
-    case '/':
-        return a / b;
-    case '^':
-        return pow(a, b);
-    }
-
-    return 0;
-}
 
 
 int main()
@@ -104,69 +17,135 @@ int main()
     ofstream fileout;
     fileout.open("output.txt");
     string s;
+    string mode = "-t";
     while (!filein.eof())
     {
         string newS;
-        while (getline(filein, s)) {
-            stringstream ss(s);
-            int laHaiSoLienTuc = 0;
-            StackFloat so;
-            Stack toanTu;
-            while (getline(ss, newS, ' ')) {
-                if (newS[0] == '(') {
-                    while(newS[0] == '('){
-                        string dauMoNgoac = newS.substr(0, 1);
-                        kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauMoNgoac);
-                        thucHien(dauMoNgoac, so, toanTu);
-                        newS.erase(0, 1);
+        if (mode == "-c"){
+            while (getline(filein, s)) {
+                stringstream ss(s);
+                int laHaiSoLienTuc = 0;
+                StackFloat so;
+                Stack toanTu;
+                while (getline(ss, newS, ' ')) {
+                    if (newS[0] == '(') {
+                        while(newS[0] == '('){
+                            string dauMoNgoac = newS.substr(0, 1);
+                            kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauMoNgoac);
+                            thucHien(dauMoNgoac, so, toanTu);
+                            newS.erase(0, 1);
+                        }
+                        if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
+                            fileout << "E" << endl;
+                            break;
+                        }
+                        thucHien(newS, so, toanTu);
                     }
-                    if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
-                        fileout << "E" << endl;
-                        break;
+                    else if (newS[newS.size() - 1] == ')') {
+                        int viTri = newS.find(")");
+                        string motSo = newS.substr(0, viTri);
+                        newS.erase(0, viTri);
+                        if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, motSo)) {
+                            fileout << "E" << endl;
+                            break;
+                        }
+                        thucHien(motSo, so, toanTu);
+                        while (newS[0] == ')')
+                        {
+                            string dauDongNgoac = newS.substr(0, 1);
+                            kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauDongNgoac);
+                            thucHien(dauDongNgoac, so, toanTu);
+                            newS.erase(newS.size() - 1, 1);
+                        }                    
                     }
-                    thucHien(newS, so, toanTu);
-                }
-                else if (newS[newS.size() - 1] == ')') {
-                    int viTri = newS.find(")");
-                    string motSo = newS.substr(0, viTri);
-                    newS.erase(0, viTri);
-                    if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, motSo)) {
-                        fileout << "E" << endl;
-                        break;
+                    else {
+                        if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
+                            fileout << "E" << endl;
+                            break;
+                        }
+                        thucHien(newS, so, toanTu);
                     }
-                    thucHien(motSo, so, toanTu);
-                    while (newS[0] == ')')
-                    {
-                        string dauDongNgoac = newS.substr(0, 1);
-                        kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauDongNgoac);
-                        thucHien(dauDongNgoac, so, toanTu);
-                        newS.erase(newS.size() - 1, 1);
-                    }                    
-                }
-                else {
-                    if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
-                        fileout << "E" << endl;
-                        break;
-                    }
-                    thucHien(newS, so, toanTu);
-                }
 
-            }
-            if (laHaiSoLienTuc != 2) {
-                while (!toanTu.empty()) {
-                    float soThuNhat = so.top();
-                    so.pop();
-                    float soThuHai = so.top();
-                    so.pop();
-                    so.push(tinhToan(soThuHai, soThuNhat, toanTu.top()));
-                    toanTu.pop();
                 }
-                fileout << fixed <<setprecision(2) <<so.top() << endl;
+                if (laHaiSoLienTuc != 2) {
+                    while (!toanTu.empty()) {
+                        float soThuNhat = so.top();
+                        so.pop();
+                        float soThuHai = so.top();
+                        so.pop();
+                        so.push(tinhToan(soThuHai, soThuNhat, toanTu.top()));
+                        toanTu.pop();
+                    }
+                    fileout << fixed <<setprecision(2) <<so.top() << endl;
+                }
+            }
+        }
+        else if (mode == "-t"){
+            while (getline(filein, s)) {
+                stringstream ss(s);
+                int laHaiSoLienTuc = 0;
+                Stack so;
+                Stack toanTu;
+                while (getline(ss, newS, ' ')) {
+                    if (newS[0] == '(') {
+                        while(newS[0] == '('){
+                            string dauMoNgoac = newS.substr(0, 1);
+                            kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauMoNgoac);
+                            thucHien2(dauMoNgoac, so, toanTu);
+                            newS.erase(0, 1);
+                        }
+                        if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
+                            fileout << "E" << endl;
+                            break;
+                        }
+                        thucHien2(newS, so, toanTu);
+                    }
+                    else if (newS[newS.size() - 1] == ')') {
+                        int viTri = newS.find(")");
+                        string motSo = newS.substr(0, viTri);
+                        newS.erase(0, viTri);
+                        if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, motSo)) {
+                            fileout << "E" << endl;
+                            break;
+                        }
+                        thucHien2(motSo, so, toanTu);
+                        while (newS[0] == ')')
+                        {
+                            string dauDongNgoac = newS.substr(0, 1);
+                            kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauDongNgoac);
+                            thucHien2(dauDongNgoac, so, toanTu);
+                            newS.erase(0, 1);
+                        }                    
+                    }
+                    else {
+                        if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
+                            fileout << "E" << endl;
+                            break;
+                        }
+                        thucHien2(newS, so, toanTu);
+                    }
+
+                }
+                if (laHaiSoLienTuc != 2) {
+                    while (!toanTu.empty()) {
+                        string soThuNhat = so.top();
+                        so.pop();
+                        string soThuHai = so.top();
+                        so.pop();
+                        
+                        string imp = soThuHai + (soThuHai!="" ? " " : "") +  soThuNhat + (soThuHai!="" ? " " : "") + toanTu.top() + (toanTu.top()!="" ? " " : "");
+                        so.push(imp);
+                        toanTu.pop();
+                    }
+                    fileout << so.top() << endl;
+                }
             }
         }
         filein.close();
         fileout.close();
     }
+
+
     system("pause");
     return 0;
 }
