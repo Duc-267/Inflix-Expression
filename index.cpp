@@ -98,8 +98,7 @@ float tinhToan(float a, float b, string toanTu)
 
 int main()
 {
-   
-
+    
     ifstream filein;
     filein.open("input.txt");
     ofstream fileout;
@@ -115,26 +114,34 @@ int main()
             Stack toanTu;
             while (getline(ss, newS, ' ')) {
                 if (newS[0] == '(') {
-                    string dauMoNgoac = newS.substr(0, 1);
-                    kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauMoNgoac);
-                    newS.erase(0, 1);
+                    while(newS[0] == '('){
+                        string dauMoNgoac = newS.substr(0, 1);
+                        kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauMoNgoac);
+                        thucHien(dauMoNgoac, so, toanTu);
+                        newS.erase(0, 1);
+                    }
                     if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
                         fileout << "E" << endl;
                         break;
                     }
-                    thucHien(dauMoNgoac, so, toanTu);
                     thucHien(newS, so, toanTu);
                 }
                 else if (newS[newS.size() - 1] == ')') {
-                    string dauDongNgoac = newS.substr(newS.size() - 1, 1);
-                    kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauDongNgoac);
-                    newS.erase(newS.size() - 1, 1);
-                    if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
+                    int viTri = newS.find(")");
+                    string motSo = newS.substr(0, viTri);
+                    newS.erase(0, viTri);
+                    if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, motSo)) {
                         fileout << "E" << endl;
                         break;
                     }
-                    thucHien(newS, so, toanTu);
-                    thucHien(dauDongNgoac, so, toanTu);
+                    thucHien(motSo, so, toanTu);
+                    while (newS[0] == ')')
+                    {
+                        string dauDongNgoac = newS.substr(0, 1);
+                        kiemTraHaiSoLienTuc(laHaiSoLienTuc, dauDongNgoac);
+                        thucHien(dauDongNgoac, so, toanTu);
+                        newS.erase(newS.size() - 1, 1);
+                    }                    
                 }
                 else {
                     if (kiemTraHaiSoLienTuc(laHaiSoLienTuc, newS)) {
