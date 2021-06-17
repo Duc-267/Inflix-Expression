@@ -115,9 +115,18 @@ void thucHien2(string kytu, Stack& so, Stack& toantu){
             string soThuHai = so.top();
             so.pop();
             string imp = soThuHai + (soThuHai!="" ? " " : "") +  soThuNhat + (soThuNhat!="" ? " " : "") + toantu.top() ;
-            so.push(imp);
-            toantu.pop();
-        }
-        toantu.push(kytu);
+            so.push(imp);                       
+            toantu.pop();                                                       
+        }                     
+        toantu.push(kytu);                                     
     }
+}
+
+int timViTriThapNhat(int a, int b, int c){
+    int min = (a == -1 ? INT_MAX : a);
+    if (min > b && b > -1)
+        min = b;
+    else if (min > c && c > -1)
+        min = c;
+    return min;
 }

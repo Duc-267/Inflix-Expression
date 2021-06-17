@@ -75,7 +75,7 @@ public:
     float top()
     {
         if (!head)
-            return 0;
+            return 234843.7243432;
         return head->s;
     }
     void pop() {
